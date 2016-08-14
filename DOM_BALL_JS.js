@@ -40,8 +40,10 @@ function randomY (minUp, maxUp, minDown, maxDown) {
 }
 
 var ballH = {
-  posX: playField.offsetWidth/2 - ball.offsetWidth/2,
-  posY: playField.offsetHeight/2 - ball.offsetHeight/2,
+  width: ball.getBoundingClientRect().width,
+  height: ball.getBoundingClientRect().height,
+  posX: playField.getBoundingClientRect().left + playField.getBoundingClientRect().width/2 - ball.getBoundingClientRect().width/2,
+  posY: playField.getBoundingClientRect().top/2 + playField.getBoundingClientRect().height/2 - ball.getBoundingClientRect().height/2,
   speedX: 8,
   speedY: 8,
   maxSpeedYDown: 10,

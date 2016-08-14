@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TENNIS_DOM</title>
+<!--  <link rel="stylesheet" href="DOM_BALL_STYLE.css">-->
+  <script src="DOM_BALL_JS.js" defer></script>
+</head>
+<body>
+
+ <svg id="svgD" width=800 height=560 xmlns="http://www.w3.org/2000/svg">
+   <rect id="conteiner" x=0 y=0 width=800 height=560 stroke="#876ED7" stroke-width=2 fill="white"/>
+  
+   <g id="start">
+     <rect x=0 y=0 width=110 height=40 fill="#6A48D7"/>
+     <text x=30 y=25 fill="white">Старт!</text>
+   </g>
+   
+   <text id="score" x=360 y=40 font-size=40>0:0</text>
+   <rect id="playingField" x=0 y=60 width=800 height=500 fill="#876ED7"/>
+   
+   <rect id="racket1" x=0 y=250 width=30 height=100 fill="#FFD300"/>
+   <rect id="racket2" x=770 y=250 width=30 height=100 fill="#FFFF00"/>
+   <circle id="ball" cx=400 cy=285 r=25 fill="red"/>
+ </svg>
+
+
+</body>
+</html>

@@ -8,11 +8,26 @@ var start = document.getElementById("start");
 
 var stopTimer = 0;
 
+svgDocument.top = svgDocument.getBoundingClientRect().top;
+svgDocument.left = svgDocument.getBoundingClientRect().left;
+svgDocument.Width = svgDocument.getBoundingClientRect().width;
+svgDocument.Height = svgDocument.getBoundingClientRect().height;
+
+
+
+playField.Width = playField.getBoundingClientRect().width;
+playField.Height = playField.getBoundingClientRect().height;
+playField.top = playField.getBoundingClientRect().top - svgDocument.top;
+playField.left = playField.getBoundingClientRect().left - svgDocument.left;
+
+
 function TRacket(r) {
   this.score = 0;
-  this.posY = playField.getBoundingClientRect().top + playField.getBoundingClientRect().height/2 - r.getBoundingClientRect().height/2;
+  this.posY = playField.top + playField.Height/2 - r.getBoundingClientRect().height/2 - svgDocument.top;
   this.height = r.getBoundingClientRect().height;
   this.width = r.getBoundingClientRect().width;
+  this.left = r.getBoundingClientRect().left - svgDocument.left;
+  this.top = r.getBoundingClientRect().top - svgDocument.top;
   this.speedY = 10;
   this.up = false;
   this.down = false;
@@ -22,7 +37,7 @@ function TRacket(r) {
 }
 
 function randomInteger(min, max) {
-    var rand = min - 0.5 + Math.random() * (max - min + 1)
+    var rand = min - 0.5 + Math.random() * (max - min + 1);
     rand = Math.round(rand);
     return rand;
   }
@@ -42,17 +57,18 @@ function randomY (minUp, maxUp, minDown, maxDown) {
 var ballH = {
   width: ball.getBoundingClientRect().width,
   height: ball.getBoundingClientRect().height,
-  posX: playField.getBoundingClientRect().left + playField.getBoundingClientRect().width/2 - ball.getBoundingClientRect().width/2,
-  posY: playField.getBoundingClientRect().top/2 + playField.getBoundingClientRect().height/2 - ball.getBoundingClientRect().height/2,
-  speedX: 8,
-  speedY: 8,
+  posX: playField.left + playField.Width/2 - ball.getBoundingClientRect().width/2,
+  posY: playField.top + playField.Height/2 - ball.getBoundingClientRect().height/2,
+  speedX: 3,
+  speedY: 3,
   maxSpeedYDown: 10,
   maxSpeedYUp: -10,
   minSpeedYDown: 5,
   minSpeedYUp: -5,
   update: function(){
-    ball.style.left = this.posX;
-    ball.style.top = this.posY;
+    ball.setAttribute("cx",  this.posX + "px");
+    ball.setAttribute("cy",  this.posY + "px");
+
   },
   lastWinner: randomInteger(0, 1) ? "right" : "left"
 }
@@ -95,8 +111,8 @@ function racketDirectionR(EO) {
 
 start.addEventListener("mousedown", startGame);
 function startGame(EO) {
-  ballH.posX = playField.getAttribute("width")/2 - ball.getAttribute("width")/2,
-  ballH.posY = playField.getAttribute("height")/2 - ball.getAttribute("height")/2,
+  ballH.posX = playField.left + playField.Width / 2,
+  ballH.posY = playField.top + playField.Height / 2,
   ballH.update();
   
   if (ballH.lastWinner == "left") {
@@ -118,12 +134,12 @@ function startGame(EO) {
 function tick(){
   
  //  ========Передвижение мяча
-//  ballH.posX += ballH.speedX;
-//  ballH.posY += ballH.speedY;
+  ballH.posX += ballH.speedX;
+  ballH.posY += ballH.speedY;
   
 //  вылетел ли мяч правее стены
-  if (ballH.posX + ball.offsetWidth > playField.offsetWidth) {
-    ballH.posX = playField.offsetWidth - ball.offsetWidth;
+  if (ballH.posX + ballH.width/2 > playField.Width) {
+    ballH.posX = playField.left + playField.Width - ballH.width/2;
     clearInterval(stopTimer);
     rL.score += 1;
     score.textContent = rL.score + ":" + rR.score;
@@ -132,11 +148,11 @@ function tick(){
   
   
 //  коснулся ли правой ракетки
-  if (((ballH.posX + ball.offsetWidth)- rightRacket.offsetLeft  <= ballH.speedX) &&
-    ((ballH.posX + ball.offsetWidth)- rightRacket.offsetLeft >= 0) && 
-    (ballH.posY >= rR.posY - ball.offsetHeight * 7 / 8) && 
-    (ballH.posY <= rR.posY + rightRacket.offsetHeight - ball.offsetHeight * 1 / 8)) 
-  { ballH.posX = rightRacket.offsetLeft - ball.offsetWidth - ballH.speedX;
+  if (((ballH.posX + ballH.width / 2)- rR.left  <= ballH.speedX) &&
+    ((ballH.posX + ballH.width / 2)- rR.left >= 0) && 
+    (ballH.posY >= rR.posY - ballH.height * 7 / 8) && 
+    (ballH.posY <= rR.posY + rR.height - ballH.height * 1 / 8))
+  { ballH.posX = rR.left - ballH.width/2 - ballH.speedX;
     
     ballH.speedX = -ballH.speedX;
     ballH.posX -= ballH.speedX;
@@ -144,8 +160,8 @@ function tick(){
   
   
 //  левее стены?
-  if (ballH.posX < 0){
-    ballH.posX = 0;
+  if (ballH.posX <= playField.left + ballH.width / 2){
+    ballH.posX = playField.left + ballH.width / 2;
     clearInterval(stopTimer);
     rR.score += 1;
     score.textContent = rL.score + ":" + rR.score;
@@ -153,11 +169,11 @@ function tick(){
   }
   
   //  коснулся ли левой ракетки
-  if ((ballH.posX - (leftRacket.offsetLeft + leftRacket.offsetWidth) >= ballH.speedX) &&
-    (ballH.posX- (leftRacket.offsetLeft + leftRacket.offsetWidth) <= 0) && 
-    (ballH.posY >= rL.posY - ball.offsetHeight * 7 / 8) && 
-    (ballH.posY <= rL.posY + leftRacket.offsetHeight - ball.offsetHeight * 1 / 8)) 
-  { ballH.posX = leftRacket.offsetLeft + leftRacket.offsetWidth + ballH.speedX;
+  if ((ballH.posX - ballH.width/2 - (rL.left + rL.width) >= ballH.speedX) &&
+    (ballH.posX - ballH.width/2 - (rL.left + rL.width) <= 0) && 
+    (ballH.posY >= rL.posY - ballH.height * 7 / 8) && 
+    (ballH.posY <= rL.posY + rL.height - ballH.height * 1 / 8)) 
+  { ballH.posX = rL.left + rL.width + ballH.width/2 + ballH.speedX;
     ballH.speedX = -ballH.speedX;
     ballH.posX += ballH.speedX;
     ballH.posY += ballH.speedY;}
@@ -166,13 +182,13 @@ function tick(){
  
   
 //  если вылетел выше потолка
-  if (ballH.posY < 0) {
-    ballH.posY = 0;
+  if (ballH.posY - ballH.height/2 <=  playField.top) {
+    ballH.posY = playField.top + ballH.height/2;
     ballH.speedY = -ballH.speedY;
   }
 //  ниже пола?
-  if (ballH.posY + ball.offsetHeight > playField.offsetHeight) {
-    ballH.posY = playField.offsetHeight - ball.offsetHeight;
+  if (ballH.posY + ballH.height/2 > playField.top + playField.Height) {
+    ballH.posY = playField.top + playField.Height - ballH.height/2;
     ballH.speedY = -ballH.speedY;
   }
   
@@ -181,15 +197,15 @@ function tick(){
 //______________предвижение ракеток
   if (rL.up) {
     rL.posY -= rL.speedY; 
-    if (rL.posY < getBoundingClientRect) {
-      rL.posY = parseInt(playField.getAttribute("y"));
+    if (rL.posY <= playField.top) {
+      rL.posY = playField.top;
     }
   }
   
   if (rL.down) {
     rL.posY += rL.speedY; 
-    if (rL.posY > parseInt(playField.getAttribute("y")) +  parseInt(playField.getAttribute("height")) -  parseInt(leftRacket.getAttribute("height"))) {
-      rL.posY =  playField.getAttribute("y") + playField.getAttribute("height") - leftRacket.getAttribute("height");
+    if (rL.posY >= playField.top + playField.Height - rL.height) {
+      rL.posY =  playField.top + playField.Height - rL.height;
     }
   }  
   
@@ -198,15 +214,15 @@ function tick(){
   
   if (rR.up) {
     rR.posY -= rR.speedY; 
-    if (rR.posY < 0) {
-      rR.posY = 0;
+    if (rR.posY < playField.top) {
+      rR.posY = playField.top;
     }
   }
   
   if (rR.down) {
     rR.posY += rR.speedY; 
-    if (rR.posY > playField.offsetHeight - rightRacket.offsetHeight) {
-      rR.posY = playField.offsetHeight - rightRacket .offsetHeight;
+    if (rR.posY >= playField.top + playField.Height - rR.height) {
+      rR.posY = playField.top + playField.Height - rR.height;
     }
   }  
   

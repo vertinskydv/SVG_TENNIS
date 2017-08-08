@@ -231,7 +231,6 @@ function tick(){
  
 
   ballH.update();
-  //skjdfhksdf
   
 }
 
